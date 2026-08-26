@@ -1,6 +1,13 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends, HTTPException
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, Annotated
+from sqlalchemy.orm import Session
+from database import get_db
+from models import DBItem
+from crud import get_item_from_db, get_all_items_from_db, create_item_in_db, update_item_in_db, delete_item_in_db
+
+# Dependency for database session
+DBDependency = Annotated[Session, Depends(get_db)]
 
 app = FastAPI(
     title="My FastAPI Project",
@@ -15,6 +22,7 @@ class Item(BaseModel):
     description: Optional[str] = None
     price: float
     is_available: bool = True
+    model_config = {"from_attributes": True}
 
 class ItemResponseDTO(BaseModel):
     item: Item
@@ -25,9 +33,7 @@ class ItemAllResponseDTO(BaseModel):
     items: list[Item]
     count: int
 
-# In-memory storage (for demo purposes)
-items_db: dict[int, Item] = {}
-item_id_counter = 0
+
 
 
 @app.get("/")
@@ -37,42 +43,41 @@ def root():
 
 
 @app.get("/items/{item_id}")
-def get_item(item_id: int) -> ItemResponseDTO:
+def get_item(item_id: int, db: DBDependency) -> ItemResponseDTO:
     """Get an item by ID"""
-    if item_id not in items_db:
+    db_item = get_item_from_db(db, item_id)
+    if db_item is None:
         return {"item": None, "error": "Item not found"}
-    return {"item":items_db[item_id]}
+    return {"item": Item.model_validate(db_item)}
 
 
 @app.get("/items")
-def get_all_items() -> ItemAllResponseDTO:
+def get_all_items(db: DBDependency) -> ItemAllResponseDTO:
     """Get all items"""
-    items = list(items_db.values())
+    db_items = get_all_items_from_db(db)
+    items = [Item.model_validate(db_item) for db_item in db_items]
     return {"items": items, "count": len(items)}
 
 
 @app.post("/items")
-def create_item(item: Item):
+def create_item(item: Item, db: DBDependency):
     """Create a new item"""
-    global item_id_counter
-    item_id_counter += 1
-    items_db[item_id_counter] = item
-    return {"id": item_id_counter, **item.model_dump()}
+    db_item = create_item_in_db(db, item.model_dump())
+    return {"id": db_item.id, **item.model_dump()}
 
 
 @app.put("/items/{item_id}")
-def update_item(item_id: int, item: Item):
+def update_item(item_id: int, item: Item, db: DBDependency):
     """Update an item"""
-    if item_id not in items_db:
+    db_item = update_item_in_db(db, item_id, item.model_dump())
+    if db_item is None:
         return {"error": "Item not found"}
-    items_db[item_id] = item
     return {"id": item_id, **item.model_dump()}
 
 
 @app.delete("/items/{item_id}")
-def delete_item(item_id: int):
+def delete_item(item_id: int, db: DBDependency):
     """Delete an item"""
-    if item_id not in items_db:
+    if not delete_item_in_db(db, item_id):
         return {"error": "Item not found"}
-    del items_db[item_id]
     return {"message": "Item deleted successfully"}
