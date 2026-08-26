@@ -33,9 +33,6 @@ class ItemAllResponseDTO(BaseModel):
     items: list[Item]
     count: int
 
-
-
-
 @app.get("/")
 def root():
     """Root endpoint"""
