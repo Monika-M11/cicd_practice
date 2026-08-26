@@ -16,6 +16,9 @@ class Item(BaseModel):
     price: float
     is_available: bool = True
 
+class ItemResponseDTO(BaseModel):
+       item: Item
+       error: Optional[str] = None
 
 # In-memory storage (for demo purposes)
 items_db: dict[int, Item] = {}
@@ -29,11 +32,11 @@ def root():
 
 
 @app.get("/items/{item_id}")
-def get_item(item_id: int):
+def get_item(item_id: int) -> ItemResponseDTO:
     """Get an item by ID"""
     if item_id not in items_db:
-        return {"error": "Item not found"}
-    return items_db[item_id]
+        return {"item": None, "error": "Item not found"}
+    return {"item":items_db[item_id]}
 
 
 @app.get("/items")
