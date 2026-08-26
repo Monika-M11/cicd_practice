@@ -25,7 +25,7 @@ class Item(BaseModel):
     model_config = {"from_attributes": True}
 
 class ItemResponseDTO(BaseModel):
-    item: Item
+    item: Optional[Item] = None
     error: Optional[str] = None
 
 

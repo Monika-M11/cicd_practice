@@ -51,3 +51,12 @@ curl -X POST "http://127.0.0.1:8000/items" \
   -H "Content-Type: application/json" \
   -d '{"name": "Laptop", "description": "A powerful laptop", "price": 999.99, "is_available": true}'
 ```
+
+## Testing
+
+This project includes comprehensive pytest tests. See [TESTING.md](TESTING.md) for details.
+
+To run all tests:
+```bash
+python -m pytest -v
+```
