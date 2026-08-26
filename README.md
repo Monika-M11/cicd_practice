@@ -60,3 +60,17 @@ To run all tests:
 ```bash
 python -m pytest -v
 ```
+
+## GitHub Workflows
+
+This project uses GitHub Actions for continuous integration and deployment. See [GITHUB_WORKFLOWS.md](GITHUB_WORKFLOWS.md) for details.
+
+**CI/CD Pipeline**: Runs tests on every push to main branch and deploys to Render if tests pass
+
+## Development Workflow
+
+1. Make your changes
+2. Run tests locally: `python -m pytest -v`
+3. Commit and push your changes
+4. GitHub Actions will automatically run tests
+5. If tests pass and you push to main, deployment will be triggered
