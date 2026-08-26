@@ -17,8 +17,13 @@ class Item(BaseModel):
     is_available: bool = True
 
 class ItemResponseDTO(BaseModel):
-       item: Item
-       error: Optional[str] = None
+    item: Item
+    error: Optional[str] = None
+
+
+class ItemAllResponseDTO(BaseModel):
+    items: list[Item]
+    count: int
 
 # In-memory storage (for demo purposes)
 items_db: dict[int, Item] = {}
@@ -40,9 +45,10 @@ def get_item(item_id: int) -> ItemResponseDTO:
 
 
 @app.get("/items")
-def get_all_items():
+def get_all_items() -> ItemAllResponseDTO:
     """Get all items"""
-    return items_db
+    items = list(items_db.values())
+    return {"items": items, "count": len(items)}
 
 
 @app.post("/items")
