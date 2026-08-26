@@ -34,8 +34,10 @@ class ItemAllResponseDTO(BaseModel):
     count: int
 
 @app.get("/")
-def root(name: optional[str] = None):
+def root(name: Optional[str] = None):
     """Root endpoint"""
+    if (name != None):
+        return {"msg": f"Hello {name}, welcome"}
     return {"message": "Welcome to FastAPI!"}
 
 
