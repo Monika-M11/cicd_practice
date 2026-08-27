@@ -37,7 +37,7 @@ class ItemAllResponseDTO(BaseModel):
 def root(name: Optional[str] = None):
     """Root endpoint"""
     if (name != None):
-        return {"msg": f"Hello {name}, welcome"}
+        return {"msg": f"Hello {name}, welcome to my website"}
     return {"message": "Welcome to FastAPI!"}
 
 
